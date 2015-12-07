@@ -1,0 +1,113 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".TripNeeded">
+
+    <TextView
+
+        android:id="@+id/accel_textview"
+        android:text="@string/max_accel"
+        android:textSize="24sp"
+        fontPath="fonts/HelveticaNeueThin.ttf"
+
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+
+        android:layout_marginTop="20dp"
+        android:layout_marginLeft="20dp"
+        tools:ignore="MissingPrefix" />
+
+    <LinearLayout
+        android:id="@+id/accel_layout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_below="@+id/accel_textview"
+
+        >
+
+        <TextView
+            android:id="@+id/accel_x"
+            android:text="x: "
+
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+
+            android:layout_marginLeft="20dp"
+            android:layout_marginTop="5dp"/>
+
+        <TextView
+            android:id="@+id/accel_y"
+            android:text="y: "
+
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+
+            android:layout_marginLeft="20dp" />
+
+        <TextView
+            android:id="@+id/accel_z"
+            android:text="z: "
+
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+
+            android:layout_marginLeft="20dp"/>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/accel_value_layout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_toRightOf="@+id/accel_layout"
+        android:layout_alignTop="@+id/accel_layout"
+
+        >
+
+        <TextView
+            android:id="@+id/accel_x_value"
+            android:text=""
+
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+
+            android:layout_marginLeft="20dp"
+            android:layout_marginTop="5dp" />
+
+        <TextView
+            android:id="@+id/accel_y_value"
+            android:text=""
+
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+
+            android:layout_marginLeft="20dp" />
+
+        <TextView
+            android:id="@+id/accel_z_value"
+            android:text=""
+
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+
+            android:layout_marginLeft="20dp"/>
+
+    </LinearLayout>
+
+    <ToggleButton
+        android:id="@+id/log_button"
+        android:textOff="@string/log_text"
+        android:textOn="@string/logging_text"
+
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="20dp"
+        android:layout_below="@+id/accel_layout"
+        />
+
+</RelativeLayout>

@@ -1,0 +1,14 @@
+<resources>
+    <string name="app_name">Traffic</string>
+
+
+    <!-- Trip Needed Screen Strings -->
+    <string name="max_accel">Accelerometer Reading: </string>
+    <string name="action_settings">More</string>
+    <string name="log_text">Start Log</string>
+    <string name="logging_text">Stop Log</string>
+
+    <!-- Parse Notifications -->
+    <string name="Notification_Title">Event</string>
+
+</resources>
