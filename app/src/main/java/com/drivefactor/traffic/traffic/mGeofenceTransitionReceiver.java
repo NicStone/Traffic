@@ -4,14 +4,20 @@ import android.app.IntentService;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.NotificationCompat;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.google.android.gms.location.Geofence;
+import com.google.android.gms.location.GeofenceStatusCodes;
+import com.google.android.gms.location.GeofencingApi;
 import com.google.android.gms.location.GeofencingEvent;
+import com.google.android.gms.location.GeofencingRequest;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
@@ -22,24 +28,62 @@ import java.util.Map;
 /**
  * Created by Nicholas on 11/24/2015.
  */
-public class mGeofenceTransitionsIntentService extends IntentService {
+public class mGeofenceTransitionReceiver extends BroadcastReceiver {
 
-    private final String TAG = mGeofenceTransitionsIntentService.class.getName();
+    private final String TAG = mGeofenceTransitionReceiver.class.getName();
 
     private SharedPreferences prefs;
     private Gson gson;
+    private Context context;
 
-    public mGeofenceTransitionsIntentService() {
-         super("mGeofenceTransitionsIntentService");
+    Intent broadcastIntent = new Intent();
+
+
+    @Override
+    public void onReceive(Context context, Intent intent) {
+
+
+        this.context = context;
+        Toast.makeText(context, "Intent Detected.", Toast.LENGTH_LONG).show();
+
+
+        prefs = context.getSharedPreferences(Constants.SharedPrefs.Geofences, Context.MODE_PRIVATE);
+
+        gson = new GsonBuilder().registerTypeHierarchyAdapter(Geofence.class, new InterfaceAdapter<Geofence>()).create();
+
+        // broadcastIntent.addCategory(GeofenceUtils.CATEGORY_LOCATION_SERVICES);
+
+        if (GeofencingEvent.fromIntent(intent).hasError()){
+            handleError(intent);
+        } else {
+            handleExit(intent);
+        }
+
     }
 
 
 
-    protected void onHandleIntent(Intent intent) {
+    private void handleError(Intent intent){
 
-        prefs = getApplicationContext().getSharedPreferences(Constants.SharedPrefs.Geofences, Context.MODE_PRIVATE);
+        int errorCode = GeofencingEvent.fromIntent(intent).getErrorCode();
 
-        gson = new GsonBuilder().registerTypeHierarchyAdapter(Geofence.class, new InterfaceAdapter<Geofence>()).create();
+        String errorMessage = GeofenceStatusCodes.getStatusCodeString(errorCode);
+
+        Log.e(TAG,errorMessage);
+
+        // Set the action and error message for the broadcast intent
+
+        // broadcastIntent
+           //     .setAction(GeofenceUtils.ACTION_GEOFENCE_ERROR)
+           //     .putExtra(GeofenceUtils.EXTRA_GEOFENCE_STATUS, errorMessage);
+
+        // Broadcast the error *locally* to other components in this app
+        LocalBroadcastManager.getInstance(context).sendBroadcast(
+                broadcastIntent);
+    }
+
+
+ protected void handleExit(Intent intent) {
 
         // Get the event
         GeofencingEvent event = GeofencingEvent.fromIntent(intent);
@@ -70,8 +114,6 @@ public class mGeofenceTransitionsIntentService extends IntentService {
 
     }
 
-
-
     private void onExitGeofences(List<String> geofenceIds) {
 
         //Loop all geofences exited
@@ -82,7 +124,10 @@ public class mGeofenceTransitionsIntentService extends IntentService {
             Map<String,?> keys = prefs.getAll();
             for (Map.Entry<String, ?> entry : keys.entrySet()) {
                 String jsonString = prefs.getString(entry.getKey(),null);
+
+                // Geofence geofence = gson.fromJson(jsonString,new TypeToken<ArrayList<Geofence.class<<(){}.getType());
                 Geofence geofence = gson.fromJson(jsonString,Geofence.class);
+
                 if(geofence.getRequestId().equals(geofenceId)) {
                     break;
                 }
@@ -93,17 +138,17 @@ public class mGeofenceTransitionsIntentService extends IntentService {
 
             // 1. Create a NotificationManager
             NotificationManager notificationManager =
-                    (NotificationManager) this.getSystemService(Context.NOTIFICATION_SERVICE);
+                    (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
 
             // 2. Create a PendingIntent for AllGeofencesActivity
-            Intent intent = new Intent(this, TripNeeded.class);
+            Intent intent = new Intent(context, TripNeeded.class);
             intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_CLEAR_TOP);
-            PendingIntent pendingNotificationIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+            PendingIntent pendingNotificationIntent = PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
 
             // 3. Create and send a notification
-            Notification notification = new NotificationCompat.Builder(this)
+            Notification notification = new NotificationCompat.Builder(context)
                     .setSmallIcon(R.mipmap.ic_launcher)
-                    .setContentTitle(this.getResources().getString(R.string.Notification_Title))
+                    .setContentTitle(context.getResources().getString(R.string.Notification_Title))
                     .setContentText(contextText)
                     .setContentIntent(pendingNotificationIntent)
                     .setStyle(new NotificationCompat.BigTextStyle().bigText(contextText))

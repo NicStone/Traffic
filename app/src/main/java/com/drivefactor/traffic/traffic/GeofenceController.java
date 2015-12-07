@@ -7,11 +7,9 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.location.Location;
 import android.os.Bundle;
-import android.support.v4.app.FragmentActivity;
+
 import android.util.Log;
-import android.view.View;
-import android.widget.ProgressBar;
-import android.widget.Toast;
+
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.Api;
@@ -27,13 +25,12 @@ import com.google.android.gms.location.LocationServices;
 
 import com.google.gson.Gson;
 
-import java.io.FileDescriptor;
-import java.io.PrintWriter;
+
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
-import static android.app.PendingIntent.getActivity;
+
+
 
 /**
  * Created by Nicholas on 11/23/2015.
@@ -81,8 +78,8 @@ public class GeofenceController extends Activity implements LocationListener {
 
                     if(LocationFound) {
                         // Pending intent, connected to notification service
-                        Intent intent = new Intent(context, mGeofenceTransitionsIntentService.class);
-                        PendingIntent pendingIntent = PendingIntent.getService(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+                        Intent intent = new Intent("com.drivefactor.traffic.traffic.mGeofenceTransitionReceiver.ACTION_RECEIVE_GEOFENCE");
+                        PendingIntent pendingIntent = PendingIntent.getService(getApplicationContext(), 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
 
                         // Associate PendingIntent to geofence
                         PendingResult<Status> result = LocationServices.GeofencingApi.addGeofences(googleApiClient, getAddGeofencingRequest(), pendingIntent);

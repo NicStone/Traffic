@@ -7,6 +7,7 @@
     <!-- Sensors SDK -->
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
 
     <application
         android:allowBackup="true"
@@ -18,12 +19,20 @@
             android:name=".TripNeeded"
             android:label="@string/app_name"
             >
+
+            <receiver android:name="com.drivefactor.traffic.traffic.BootCompleteReceiver"
+                android:exported="false" >
+                <intent-filter>
+                    <action android:name="android.intent.action.BOOT_COMPLETED"/>
+                </intent-filter>
+            </receiver>
+
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
 
-
+                <action android:name="com.aol.android.geofence.ACTION_RECEIVE_GEOFENCE"/>
             </intent-filter>
         </activity>
         <!-- ATTENTION: This was auto-generated to add Google Play services to your project for
