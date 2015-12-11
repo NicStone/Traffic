@@ -26,7 +26,7 @@ public class ReceiveTransitionsIntentService extends IntentService {
     protected void onHandleIntent(Intent intent) {
 
         // Create a local broadcast Intent
-        Intent broadcastIntent = new Intent();
+        Intent broadcastIntent = new Intent("com.example.android.geofence.ACTION_RECEIVE_GEOFENCE");
 
         // Give it the category for all intents sent by the Intent Service
         broadcastIntent

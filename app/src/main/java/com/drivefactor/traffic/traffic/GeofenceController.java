@@ -66,6 +66,8 @@ public class GeofenceController extends Activity implements LocationListener {
     private mGeofenceTransitionReceiver broadcastReceiver;
 
 
+
+
     // Callbacks for successful creation and failed connection
     private GoogleApiClient.ConnectionCallbacks connectAddListener =
             new GoogleApiClient.ConnectionCallbacks() {
@@ -77,12 +79,15 @@ public class GeofenceController extends Activity implements LocationListener {
                         broadcastReceiver = new mGeofenceTransitionReceiver();
 
 
+
                         // Pending intent, connected to the broadcast receiver
-                        Intent intent = new Intent(context, ReceiveTransitionsIntentService.class);
+                        //Intent intent = new Intent("com.example.android.geofence.ACTION_RECEIVE_GEOFENCE");
+
+                        Intent intent = new Intent(context,ReceiveTransitionsIntentService.class);
                             //.setAction(GeofenceUtils.ACTION_GEOFENCE_TRANSITION)
                                     //.addCategory(GeofenceUtils.CATEGORY_LOCATION_SERVICES);
 
-                                            PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+                                       PendingIntent pendingIntent = PendingIntent.getService(context, 0, intent,PendingIntent.FLAG_UPDATE_CURRENT);
 
                         // Associate PendingIntent to geofence
                         PendingResult<Status> result = LocationServices.GeofencingApi.addGeofences(googleApiClient, getAddGeofencingRequest(), pendingIntent);
@@ -102,6 +107,7 @@ public class GeofenceController extends Activity implements LocationListener {
                                     // If not successful, log error
                                     Log.e(TAG, "Registering geofence failed: " + status.getStatusMessage() +
                                             " : " + status.getStatusCode());
+
                                 }
                             }
                         });
@@ -208,9 +214,11 @@ public class GeofenceController extends Activity implements LocationListener {
 
             Log.d(TAG, "Geofence Created");
 
-            // Stop locationRequest -- will improve
+
             // LocationServices.FusedLocationApi.removeLocationUpdates(
                     // googleApiClient, GeofenceController.INSTANCE);
+
+            // Stop locationRequest
             googleApiClient.disconnect();
 
             // Add geofence to list of geofences

@@ -1,6 +1,7 @@
 package com.drivefactor.traffic.traffic;
 
 import android.content.Context;
+import android.content.IntentFilter;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -36,6 +37,9 @@ public class TripNeeded extends AppCompatActivity implements View.OnClickListene
 
     private SensorManager mSensorManager;
     private Sensor mSensor;
+
+    private mGeofenceTransitionReceiver broadcastReceiver;
+    private IntentFilter intentFilter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -138,8 +142,8 @@ public class TripNeeded extends AppCompatActivity implements View.OnClickListene
         savedInstanceState.putBoolean("SAVE LOG", logButton.isChecked());
 
         savedInstanceState.putCharSequence("SAVE X", xValue.getText());
-        savedInstanceState.putCharSequence("SAVE Y",yValue.getText());
-        savedInstanceState.putCharSequence("SAVE Z",zValue.getText());
+        savedInstanceState.putCharSequence("SAVE Y", yValue.getText());
+        savedInstanceState.putCharSequence("SAVE Z", zValue.getText());
     }
 
     @Override
@@ -167,6 +171,28 @@ public class TripNeeded extends AppCompatActivity implements View.OnClickListene
         xValue.setText(savedX);
         yValue.setText(savedY);
         zValue.setText(savedZ);
+
+    }
+
+    /*
+ * Whenever the Activity resumes, reconnect the client to Location
+ * Services
+ */
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+
+        // I think this will create a ton of receivers, will test later
+
+        // broadcastReceiver = new mGeofenceTransitionReceiver();
+        // intentFilter = new IntentFilter();
+                // intentFilter.addAction(GeofenceUtils.ACTION_GEOFENCE_TRANSITION);
+                // intentFilter.addCategory(GeofenceUtils.CATEGORY_LOCATION_SERVICES);
+
+        // Register the broadcast receiver to receive status updates
+
+        //LocalBroadcastManager.getInstance(this).registerReceiver(broadcastReceiver, intentFilter);
 
     }
 
