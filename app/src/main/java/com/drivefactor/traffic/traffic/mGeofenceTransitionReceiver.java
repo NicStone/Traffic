@@ -1,6 +1,5 @@
 package com.drivefactor.traffic.traffic;
 
-import android.app.IntentService;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -11,13 +10,11 @@ import android.content.SharedPreferences;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.NotificationCompat;
 import android.util.Log;
-import android.widget.Toast;
 
+import com.example.android.geofence.GeofenceUtils;
 import com.google.android.gms.location.Geofence;
 import com.google.android.gms.location.GeofenceStatusCodes;
-import com.google.android.gms.location.GeofencingApi;
 import com.google.android.gms.location.GeofencingEvent;
-import com.google.android.gms.location.GeofencingRequest;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
@@ -36,6 +33,14 @@ public class mGeofenceTransitionReceiver extends BroadcastReceiver {
     private Gson gson;
     private Context context;
 
+    public mGeofenceTransitionReceiver() {
+    }
+
+    private Context getContext(){
+        return context;
+    }
+
+
     Intent broadcastIntent = new Intent();
 
 
@@ -44,16 +49,20 @@ public class mGeofenceTransitionReceiver extends BroadcastReceiver {
 
 
         this.context = context;
-        Toast.makeText(context, "Intent Detected.", Toast.LENGTH_LONG).show();
 
 
         prefs = context.getSharedPreferences(Constants.SharedPrefs.Geofences, Context.MODE_PRIVATE);
 
         gson = new GsonBuilder().registerTypeHierarchyAdapter(Geofence.class, new InterfaceAdapter<Geofence>()).create();
 
-        // broadcastIntent.addCategory(GeofenceUtils.CATEGORY_LOCATION_SERVICES);
+        broadcastIntent.addCategory(GeofenceUtils.CATEGORY_LOCATION_SERVICES);
+                //.putExtra(GeofenceUtils.EXTRA_GEOFENCE_ID, geofenceIds)
+                //.putExtra(GeofenceUtils.EXTRA_GEOFENCE_TRANSITION_TYPE,transitionType);
 
-        if (GeofencingEvent.fromIntent(intent).hasError()){
+
+
+
+        if (GeofencingEvent.fromIntent(intent).hasError()) {
             handleError(intent);
         } else {
             handleExit(intent);
@@ -71,14 +80,8 @@ public class mGeofenceTransitionReceiver extends BroadcastReceiver {
 
         Log.e(TAG,errorMessage);
 
-        // Set the action and error message for the broadcast intent
-
-        // broadcastIntent
-           //     .setAction(GeofenceUtils.ACTION_GEOFENCE_ERROR)
-           //     .putExtra(GeofenceUtils.EXTRA_GEOFENCE_STATUS, errorMessage);
-
-        // Broadcast the error *locally* to other components in this app
-        LocalBroadcastManager.getInstance(context).sendBroadcast(
+        // Broadcast the error to other components in this app
+        LocalBroadcastManager.getInstance(getContext()).sendBroadcast(
                 broadcastIntent);
     }
 
@@ -141,12 +144,12 @@ public class mGeofenceTransitionReceiver extends BroadcastReceiver {
                     (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
 
             // 2. Create a PendingIntent for AllGeofencesActivity
-            Intent intent = new Intent(context, TripNeeded.class);
+            Intent intent = new Intent(getContext(), TripNeeded.class);
             intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_CLEAR_TOP);
-            PendingIntent pendingNotificationIntent = PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+            PendingIntent pendingNotificationIntent = PendingIntent.getActivity(getContext(), 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
 
             // 3. Create and send a notification
-            Notification notification = new NotificationCompat.Builder(context)
+            Notification notification = new NotificationCompat.Builder(getContext())
                     .setSmallIcon(R.mipmap.ic_launcher)
                     .setContentTitle(context.getResources().getString(R.string.Notification_Title))
                     .setContentText(contextText)
@@ -156,6 +159,17 @@ public class mGeofenceTransitionReceiver extends BroadcastReceiver {
                     .setAutoCancel(true)
                     .build();
             notificationManager.notify(0, notification);
+
+            // Create an Intent to broadcast to the app
+            broadcastIntent
+                    .setAction(GeofenceUtils.ACTION_GEOFENCE_TRANSITION)
+                    .addCategory(GeofenceUtils.CATEGORY_LOCATION_SERVICES);
+                    //.putExtra(GeofenceUtils.EXTRA_GEOFENCE_ID, geofenceIds)
+                    //.putExtra(GeofenceUtils.EXTRA_GEOFENCE_TRANSITION_TYPE,
+                            //transitionType);
+
+            LocalBroadcastManager.getInstance(getContext())
+                    .sendBroadcast(broadcastIntent);
 
         }
     }

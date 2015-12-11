@@ -7,12 +7,9 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.location.Location;
 import android.os.Bundle;
-
 import android.util.Log;
 
-
 import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.api.Api;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.PendingResult;
 import com.google.android.gms.common.api.ResultCallback;
@@ -22,9 +19,7 @@ import com.google.android.gms.location.GeofencingRequest;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
-
 import com.google.gson.Gson;
-
 
 import java.util.ArrayList;
 import java.util.List;
@@ -58,7 +53,6 @@ public class GeofenceController extends Activity implements LocationListener {
 
     private Geofence geofenceToAdd;
 
-
     // Singleton to create and access instance
     private static GeofenceController INSTANCE;
 
@@ -69,6 +63,8 @@ public class GeofenceController extends Activity implements LocationListener {
         return INSTANCE;
     }
 
+    private mGeofenceTransitionReceiver broadcastReceiver;
+
 
     // Callbacks for successful creation and failed connection
     private GoogleApiClient.ConnectionCallbacks connectAddListener =
@@ -77,9 +73,16 @@ public class GeofenceController extends Activity implements LocationListener {
                 public void onConnected(Bundle bundle) {
 
                     if(LocationFound) {
-                        // Pending intent, connected to notification service
-                        Intent intent = new Intent("com.drivefactor.traffic.traffic.mGeofenceTransitionReceiver.ACTION_RECEIVE_GEOFENCE");
-                        PendingIntent pendingIntent = PendingIntent.getService(getApplicationContext(), 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+                        //Create new receiver
+                        broadcastReceiver = new mGeofenceTransitionReceiver();
+
+
+                        // Pending intent, connected to the broadcast receiver
+                        Intent intent = new Intent(context, ReceiveTransitionsIntentService.class);
+                            //.setAction(GeofenceUtils.ACTION_GEOFENCE_TRANSITION)
+                                    //.addCategory(GeofenceUtils.CATEGORY_LOCATION_SERVICES);
+
+                                            PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
 
                         // Associate PendingIntent to geofence
                         PendingResult<Status> result = LocationServices.GeofencingApi.addGeofences(googleApiClient, getAddGeofencingRequest(), pendingIntent);

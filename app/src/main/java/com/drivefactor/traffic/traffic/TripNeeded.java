@@ -1,15 +1,11 @@
 package com.drivefactor.traffic.traffic;
 
 import android.content.Context;
-import android.content.res.Configuration;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
-import android.net.Uri;
 import android.os.Bundle;
-import android.os.Parcel;
-import android.os.Parcelable;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Menu;
@@ -173,6 +169,9 @@ public class TripNeeded extends AppCompatActivity implements View.OnClickListene
         zValue.setText(savedZ);
 
     }
+
+
+
 
 
 }
