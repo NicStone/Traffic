@@ -5,6 +5,7 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.database.sqlite.SQLiteDatabase;
 import android.location.Location;
 import android.os.Bundle;
 import android.util.Log;
@@ -45,13 +46,15 @@ public class GeofenceController extends Activity implements LocationListener {
     private LocationRequest mLocationRequest;
     private LocationListener mLocationListener;
 
-    private ArrayList<Object> knownGeofences;
+
+        private ArrayList<Object> knownGeofences;
 
     public ArrayList<Object> getKnownGeofences() {
         return knownGeofences;
     }
 
     private Geofence geofenceToAdd;
+
 
     // Singleton to create and access instance
     private static GeofenceController INSTANCE;
@@ -62,8 +65,6 @@ public class GeofenceController extends Activity implements LocationListener {
         }
         return INSTANCE;
     }
-
-    private mGeofenceTransitionReceiver broadcastReceiver;
 
 
 
@@ -76,18 +77,22 @@ public class GeofenceController extends Activity implements LocationListener {
 
                     if(LocationFound) {
                         //Create new receiver
-                        broadcastReceiver = new mGeofenceTransitionReceiver();
-
-
+                        mGeofenceTransitionReceiver broadcastReceiver = new mGeofenceTransitionReceiver();
 
                         // Pending intent, connected to the broadcast receiver
-                        //Intent intent = new Intent("com.example.android.geofence.ACTION_RECEIVE_GEOFENCE");
 
                         Intent intent = new Intent(context,ReceiveTransitionsIntentService.class);
-                            //.setAction(GeofenceUtils.ACTION_GEOFENCE_TRANSITION)
-                                    //.addCategory(GeofenceUtils.CATEGORY_LOCATION_SERVICES);
 
-                                       PendingIntent pendingIntent = PendingIntent.getService(context, 0, intent,PendingIntent.FLAG_UPDATE_CURRENT);
+                        //Intent intent = new Intent("com.example.android.geofence.ACTION_RECEIVE_GEOFENCE");
+
+
+                        // Intent intent = new Intent(context,mGeofenceTransitionReceiver.class)
+                        // .setAction(GeofenceUtils.ACTION_GEOFENCE_TRANSITION)
+                        // .addCategory(GeofenceUtils.CATEGORY_LOCATION_SERVICES);
+
+                        PendingIntent pendingIntent = PendingIntent.getService(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+
+
 
                         // Associate PendingIntent to geofence
                         PendingResult<Status> result = LocationServices.GeofencingApi.addGeofences(googleApiClient, getAddGeofencingRequest(), pendingIntent);
@@ -200,17 +205,12 @@ public class GeofenceController extends Activity implements LocationListener {
 
         Log.d(TAG, "Last location: " + location.toString());
 
-        double lat = location.getLatitude();
-        double lon = location.getLongitude();
-        float acc = location.getAccuracy();
-
-
         // make sure last location is reasonable
-        if (dataIsValid(lat, lon, acc)) {
+        if (isValid(location)) {
 
          LocationFound = true;
             // Create geofence
-            Geofence currentGeofence = new GeofenceCreate().mGeofence(lat, lon);
+            Geofence currentGeofence = new GeofenceCreate().mGeofence(location);
 
             Log.d(TAG, "Geofence Created");
 
@@ -223,24 +223,28 @@ public class GeofenceController extends Activity implements LocationListener {
 
             // Add geofence to list of geofences
             addGeofence(currentGeofence);
-        }
+        } else {
+            //TODO handle this better
 
+            googleApiClient.disconnect();
+            connectWithCallbacks(connectAddListener);
+        }
     }
 
     // TODO handle inaccuracy
-    private boolean dataIsValid(double lat, double lon, float acc) {
-        boolean validData = true;
+    private boolean isValid(Location location) {
+        boolean validLocation = true;
 
-        if (lat >= Constants.Geometry.MinLatitude &&
-                lat <= Constants.Geometry.MaxLatitude &&
-                lon >= Constants.Geometry.MinLongitude &&
-                lon <= Constants.Geometry.MaxLongitude &&
-                acc <= Constants.Geometry.Accuracy) {
+        if (location.getLatitude() >= Constants.Geometry.MinLatitude &&
+                location.getLatitude() <= Constants.Geometry.MaxLatitude &&
+                location.getLongitude() >= Constants.Geometry.MinLongitude &&
+                location.getLongitude() <= Constants.Geometry.MaxLongitude &&
+                location.getAccuracy() <= Constants.Geometry.Accuracy) {
 
         } else {
-            validData = false;
+            validLocation = false;
         }
-        return validData;
+        return validLocation;
     }
 
     public void addGeofence(Geofence geofence
@@ -259,8 +263,20 @@ public class GeofenceController extends Activity implements LocationListener {
         SharedPreferences.Editor editor = prefs.edit();
         editor.putString(geofenceToAdd.getRequestId(), json);
         editor.apply();
+
+        DatabaseHandler dbHandler = new DatabaseHandler(context);
+
+        dbHandler.setTableName("testTable")
+                .setPrimaryColumnName("column_1")
+                .setPrimaryColumnType("Integer");
+
+        SQLiteDatabase geofenceStorage = context.openOrCreateDatabase("Geofences.db",MODE_PRIVATE,null);
+
+
+        dbHandler.setTableName("testTable").addColumn("column_2","Integer");
+
+        Log.d(TAG, geofenceStorage.toString());
+
     }
-
-
 
 }

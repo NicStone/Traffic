@@ -8,6 +8,7 @@
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
 
     <application
         android:allowBackup="true"
@@ -27,15 +28,17 @@
                 android:exported="false" >
                 <intent-filter>
                     <action android:name="android.intent.action.BOOT_COMPLETED"/>
+                    <action android:name="android.intent.action.QUICKBOOT_POWERON" />
                 </intent-filter>
             </receiver>
 
             <!-- Montitor geofence in the background -->
             <receiver android:name="com.drivefactor.traffic.traffic.mGeofenceTransitionReceiver"
                 android:enabled="true"
-                android:exported="true" >
+                android:exported="false" >
                 <intent-filter>
                     <action android:name="com.example.android.geofence.ACTION_RECEIVE_GEOFENCE"/>
+                    <action android:name="com.example.android.geofence.ACTION_GEOFENCE_TRANSITION"/>
 
                 </intent-filter>
             </receiver>
@@ -47,7 +50,7 @@
 
                 <category android:name="android.intent.category.LAUNCHER" />
 
-                <action android:name="com.example.android.geofence.ACTION_RECEIVE_GEOFENCE"/>
+                <!--<action android:name="com.example.android.geofence.ACTION_RECEIVE_GEOFENCE"/>-->
             </intent-filter>
         </activity>
 

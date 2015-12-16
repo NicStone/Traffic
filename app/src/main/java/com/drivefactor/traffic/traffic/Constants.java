@@ -15,6 +15,12 @@ public class Constants {
 
     }
 
+    public static class Telematics {
+        public static double accelThreshold = 11;
+
+    }
+
+
     public static class SharedPrefs {
         public static String Geofences = "SHARED_PREFS_GEOFENCES";
     }

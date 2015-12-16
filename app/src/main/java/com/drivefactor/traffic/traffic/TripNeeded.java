@@ -15,6 +15,7 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 import android.widget.ToggleButton;
 
 import java.util.Arrays;
@@ -65,8 +66,11 @@ public class TripNeeded extends AppCompatActivity implements View.OnClickListene
         logButton.setOnClickListener(this);
 
 
-        //Initiatize the geofence
-        GeofenceController.getInstance().init(this);
+
+        //Initiatize the geofence,when starting the applicaition
+        if(savedInstanceState == null) {
+            GeofenceController.getInstance().init(this);
+        }
 
     }
 
@@ -91,7 +95,24 @@ public class TripNeeded extends AppCompatActivity implements View.OnClickListene
         xValue.setText(Float.toString(event.values.clone()[0]));
         yValue.setText(Float.toString(event.values.clone()[1]));
         zValue.setText(Float.toString(event.values.clone()[2]));
+        crashEval(event);
         Log.d(TAG, "sensor: " + Arrays.toString(event.values.clone()));
+
+    }
+
+    public void crashEval(SensorEvent event) {
+
+
+            if (Math.abs(event.values.clone()[0])<Constants.Telematics.accelThreshold
+                    || Math.abs(event.values.clone()[1])<Constants.Telematics.accelThreshold
+                    || Math.abs(event.values.clone()[2])<Constants.Telematics.accelThreshold
+                    ) {
+                Toast.makeText(getApplicationContext(), "Crash",
+                        Toast.LENGTH_SHORT).show();
+
+            }
+
+
 
     }
 
